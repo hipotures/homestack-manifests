@@ -1,0 +1,15 @@
+schema: 3
+service: homeassistant
+inputs:
+  - id: timezone
+    label: Time zone
+    description: IANA time zone name for the container, such as Europe/Warsaw. Configure Home Assistant's location and time zone during onboarding as well.
+    type: string
+    required: true
+    default: Etc/UTC
+    min_length: 1
+    max_length: 128
+    regex: '^[A-Za-z0-9_+-]+(/[A-Za-z0-9_+-]+)*$'
+    target:
+      type: environment
+      variable: TZ

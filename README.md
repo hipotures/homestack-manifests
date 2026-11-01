@@ -8,9 +8,7 @@ Application source code, the HomeStack engine, and infrastructure-specific confi
 
 ## Scope
 
-The intended catalog includes services such as Home Assistant, Mosquitto, and Zigbee2MQTT. These are examples of the repository's purpose, not a list of currently available services.
-
-The repository is being initialized. No deployable service manifests are included yet.
+The catalog currently includes a [Home Assistant manifest](docs/homeassistant.md) using the official upstream image and a persistent `/config` volume. Runtime compatibility has not yet been verified. Mosquitto and Zigbee2MQTT are examples of possible future additions.
 
 ## Repository layout
 

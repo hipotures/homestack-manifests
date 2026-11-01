@@ -1,0 +1,13 @@
+schema: 3
+service: homeassistant
+# Initial operator-overridable allocations, not measured runtime requirements.
+resources:
+  cores: 2
+  memory: 2G
+  swap: 0M
+  rootfs: 8G
+deployment:
+  hostname: homeassistant
+  instances: 1
+  placement: single
+  state_model: local

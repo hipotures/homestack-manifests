@@ -1,0 +1,17 @@
+schema: 3
+id: homeassistant
+name: Home Assistant
+image:
+  repository: ghcr.io/home-assistant/home-assistant
+runtime:
+  ports:
+    - name: http
+      port: 8123
+      protocol: tcp
+  healthcheck:
+    type: tcp
+    port: http
+persistence:
+  mount: /config
+  size: 10G
+exposure: {}
