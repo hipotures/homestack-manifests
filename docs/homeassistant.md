@@ -19,19 +19,23 @@ Use one instance: additional instances have independent configuration and data; 
 
 ## Access and health
 
-After deployment, open `http://<instance-hostname>:8123` on the LAN and complete onboarding to create the owner account. No credentials belong in the manifest.
+After deployment, the internal application address is `http://<instance-hostname>:8123`. Complete onboarding to create the owner account. No credentials belong in the manifest. Browsers enforce HTTPS for `.app` domains, including LAN names; a private IP address is usable only from the LAN or a connected VPN.
 
-The TCP health check only establishes that port 8123 accepts connections. It does not prove that integrations or automations work. The manifest does not request HomeStack application telemetry or heartbeat injection; container metrics are provided independently by Proxmox and the PVE agent when configured.
+The HTTP health check requests `/auth/providers` and expects status 200. This upstream authentication-provider endpoint is available without authentication and was verified on the deployed 2026.10.4 instance. It checks the HTTP application path, not the operation of integrations or automations. The manifest does not request HomeStack application telemetry or heartbeat injection; container metrics are provided independently by Proxmox and the PVE agent when configured.
 
-Pangolin exposure is disabled. Enabling it requires a verified upstream HTTP health endpoint and its expected status code, plus the appropriate Home Assistant reverse-proxy configuration. Do not point probes at nonexistent HomeStack-specific endpoints.
+The manifest declares a Pangolin resource named `Home Assistant`, using the same HTTP port and health check. Its suggested public subdomain is `homeassistant`; choose the public domain and Pangolin site in HomeStack. Pangolin provides HTTPS on the public address and forwards to port 8123 internally. Updating this repository alone does not publish or reconcile a running resource; apply the reviewed Pangolin publication through HomeStack for an existing deployment. Do not point probes at nonexistent HomeStack-specific endpoints.
+
+Home Assistant must also trust the actual reverse proxy. For Home Assistant 2026.8 and newer, configure **Settings > System > Network > HTTP server**, enable **Trust X-Forwarded-For**, and add only the actual proxy source addresses or appropriate narrowly scoped proxy network to **Trusted proxies**. Determine these addresses from the deployed Pangolin topology; they are private deployment settings and do not belong in the manifest. Do not trust all addresses. Saving the settings restarts Home Assistant and requires confirmation within five minutes. See the [upstream HTTP documentation](https://www.home-assistant.io/integrations/http/#reverse-proxies).
+
+Until proxy trust is configured, requests carrying `X-Forwarded-For` return HTTP 400; this was observed on the deployed instance. Publishing the Pangolin resource alone does not fix that prerequisite. For first-time remote setup, establish private access such as a VPN or SSH tunnel to configure proxy trust before relying on the public route. Keep Home Assistant's own authentication enabled as well as Pangolin's access controls; no authentication bypass paths are declared.
 
 ## Compatibility boundaries
 
 This is Home Assistant Container, not Home Assistant OS: it does not include Supervisor or managed apps/add-ons. Deploy supporting services separately.
 
-USB passthrough, Bluetooth, host D-Bus mounts, and privileged operation are not declared. The upstream Docker example includes host networking and privileged mode, with an optional D-Bus mount for Bluetooth. Those Docker flags are not a HomeStack LXC configuration recipe. Basic startup in unprivileged Proxmox LXC remains unverified. Device integrations and multicast discovery depend on the actual network and device access; declaring port 8123 does not enable them.
+USB passthrough, Bluetooth, host D-Bus mounts, and privileged operation are not declared. The upstream Docker example includes host networking and privileged mode, with an optional D-Bus mount for Bluetooth. Those Docker flags are not a HomeStack LXC configuration recipe. The operator's deployed 2026.10.4 instance was observed serving HTTP in unprivileged Proxmox LXC; this is not verification of every integration or image version. Device integrations and multicast discovery depend on the actual network and device access; declaring port 8123 does not enable them.
 
-Only YAML syntax and a manual review against the local HomeStack schema were checked. No application startup, resource measurements, HTTP probes, image replacement, or live Proxmox tests were performed.
+Initial checks covered YAML syntax and a manual review against the local HomeStack schema. Subsequent read-only checks of the operator's deployed 2026.10.4 instance confirmed HTTP responses, unprivileged LXC operation, a separate `/config` volume, and filesystem metrics. The `/auth/providers` probe returned 200; a request carrying an untrusted forwarded address returned 400. No Pangolin publication, proxy-trust changes, container restarts, image replacement, or persistent-data recovery tests were performed by these checks. Resource defaults remain unmeasured starting allocations.
 
 ## References
 

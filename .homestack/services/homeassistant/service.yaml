@@ -9,9 +9,15 @@ runtime:
       port: 8123
       protocol: tcp
   healthcheck:
-    type: tcp
+    type: http
     port: http
+    path: /auth/providers
+    expected_status: 200
 persistence:
   mount: /config
   size: 10G
-exposure: {}
+exposure:
+  pangolin:
+    port: http
+    name: Home Assistant
+    subdomain: homeassistant
