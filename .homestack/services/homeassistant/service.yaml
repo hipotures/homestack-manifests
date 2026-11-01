@@ -20,4 +20,4 @@ exposure:
   pangolin:
     port: http
     name: Home Assistant
-    subdomain: homeassistant
+    subdomain: ha
