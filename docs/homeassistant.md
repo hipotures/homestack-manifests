@@ -38,10 +38,12 @@ USB dongle, using its stable `/dev/serial/by-id/` path, UID/GID `0:0`, mode
 `0660` and write access, as explicitly requested for this deployment. This
 hardware identifier is deployment-specific; change it for another adapter.
 The device must be attached to the selected Proxmox node. Use a HomeStack
-version supporting schema-3 `runtime.devices`; root SSH authentication is
-required to write device mappings. Image replacement preserves the `/config`
-volume and the device configuration, including recovery through the stopped
-holder. Actual Proxmox replacement verification remains an operator task.
+version recognizing schema-3 `runtime.devices`. Proxmox requires a root@pam
+API session for device writes; the current HomeStack deploy token cannot
+configure them. HomeStack blocks image replacement involving devices before
+changing the existing container. No SSH access is used. The running deployment
+retains its manually configured device and `/config` volume; automated device
+replacement requires explicit root API session support.
 
 Bluetooth, host D-Bus mounts, and privileged operation are not declared. The upstream Docker example includes host networking and privileged mode, with an optional D-Bus mount for Bluetooth. Those Docker flags are not a HomeStack LXC configuration recipe. The operator's deployed 2026.10.4 instance was observed serving HTTP in unprivileged Proxmox LXC; this is not verification of every integration or image version. Device integrations and multicast discovery depend on the actual network and device access; declaring port 8123 does not enable them.
 
