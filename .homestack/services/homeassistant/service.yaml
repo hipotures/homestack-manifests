@@ -4,6 +4,13 @@ name: Home Assistant
 image:
   repository: ghcr.io/home-assistant/home-assistant
 runtime:
+  devices:
+    dev0:
+      path: /dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_aaacb724239dec11b868654d73138bba-if00-port0
+      uid: 0
+      gid: 0
+      mode: "0660"
+      read_only: false
   ports:
     - name: http
       port: 8123

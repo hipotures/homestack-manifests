@@ -33,7 +33,17 @@ Until proxy trust is configured, requests carrying `X-Forwarded-For` return HTTP
 
 This is Home Assistant Container, not Home Assistant OS: it does not include Supervisor or managed apps/add-ons. Deploy supporting services separately.
 
-USB passthrough, Bluetooth, host D-Bus mounts, and privileged operation are not declared. The upstream Docker example includes host networking and privileged mode, with an optional D-Bus mount for Bluetooth. Those Docker flags are not a HomeStack LXC configuration recipe. The operator's deployed 2026.10.4 instance was observed serving HTTP in unprivileged Proxmox LXC; this is not verification of every integration or image version. Device integrations and multicast discovery depend on the actual network and device access; declaring port 8123 does not enable them.
+The manifest declares `runtime.devices.dev0` for the operator's Sonoff Zigbee
+USB dongle, using its stable `/dev/serial/by-id/` path, UID/GID `0:0`, mode
+`0660` and write access, as explicitly requested for this deployment. This
+hardware identifier is deployment-specific; change it for another adapter.
+The device must be attached to the selected Proxmox node. Use a HomeStack
+version supporting schema-3 `runtime.devices`; root SSH authentication is
+required to write device mappings. Image replacement preserves the `/config`
+volume and the device configuration, including recovery through the stopped
+holder. Actual Proxmox replacement verification remains an operator task.
+
+Bluetooth, host D-Bus mounts, and privileged operation are not declared. The upstream Docker example includes host networking and privileged mode, with an optional D-Bus mount for Bluetooth. Those Docker flags are not a HomeStack LXC configuration recipe. The operator's deployed 2026.10.4 instance was observed serving HTTP in unprivileged Proxmox LXC; this is not verification of every integration or image version. Device integrations and multicast discovery depend on the actual network and device access; declaring port 8123 does not enable them.
 
 Initial checks covered YAML syntax and a manual review against the local HomeStack schema. Subsequent read-only checks of the operator's deployed 2026.10.4 instance confirmed HTTP responses, unprivileged LXC operation, a separate `/config` volume, and filesystem metrics. The `/auth/providers` probe returned 200; a request carrying an untrusted forwarded address returned 400. No Pangolin publication, proxy-trust changes, container restarts, image replacement, or persistent-data recovery tests were performed by these checks. Resource defaults remain unmeasured starting allocations.
 
