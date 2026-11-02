@@ -47,6 +47,75 @@ The default mount path is `/home/app` when `mount` is omitted from a configured 
 
 Image replacement must preserve the existing persistent volume and its mount path. Changing a manifest's mount path is not a data migration; existing deployments require an explicit migration plan.
 
+## Publishing an existing service through Pangolin
+
+A service that already runs on its own container, virtual machine or host can be published through Pangolin without HomeStack creating anything. Leave `resources` empty in `defaults.yaml`: HomeStack then creates no container and only adds a Pangolin HTTP resource that routes to the existing service. The service itself is never changed.
+
+HomeStack routes to `<hostname>.<domain>` on the declared port through the Pangolin Site connector on the chosen node. The name must resolve through the DNS that connector uses, and the service must be reachable from it.
+
+`service.yaml`:
+
+```yaml
+schema: 3
+id: myapp
+name: My App
+image:
+  # Required by the schema and checked against its registry, but never pulled.
+  repository: docker.io/example/myapp
+runtime:
+  ports:
+    - name: http
+      port: 8080
+      protocol: tcp
+  # Pangolin monitors the service with this HTTP check.
+  healthcheck:
+    type: http
+    port: http
+    path: /
+    expected_status: 200
+persistence:
+exposure:
+  pangolin:
+    port: http
+    name: My App
+    subdomain: myapp
+```
+
+`defaults.yaml`:
+
+```yaml
+schema: 3
+service: myapp
+# Empty: no container is created; the service is only published.
+resources:
+deployment:
+  hostname: myapp
+  instances: 1
+  placement: single
+  state_model: stateless
+```
+
+`inputs.yaml`:
+
+```yaml
+schema: 3
+service: myapp
+inputs: []
+```
+
+In the HomeStack TUI deployment of such a service:
+
+1. **Nodes**: choose the node the service runs on; its Pangolin Site connector routes the traffic.
+2. **Hostname** and **Domain**: together they form the service's local address, for example `myapp` and `home.example` for `myapp.home.example`.
+3. **Pangolin**: press Enter to attach, then choose the **Pangolin domain**. The service is published as `<subdomain>.<Pangolin domain>`, for example `https://myapp.example.com`.
+4. Review: it lists only the Pangolin resource, its monitoring and the public DNS record. Apply creates nothing else.
+
+Limitations:
+
+- Only HTTP services are supported; the resource and its health check use HTTP.
+- The target must be a host name, not an IP address.
+- A running HomeStack Pangolin Site connector must exist on the chosen node.
+
 ## Health and compatibility
 
 Third-party images do not need to implement HomeStack-specific application endpoints. Choose a supported TCP or HTTP health check appropriate to the application. Infrastructure metrics and application-level telemetry are separate capabilities; availability depends on the deployed HomeStack components and the application.
