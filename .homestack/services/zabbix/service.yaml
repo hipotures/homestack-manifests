@@ -1,0 +1,23 @@
+schema: 3
+id: zabbix
+name: Zabbix
+image:
+  repository: docker.io/zabbix/zabbix-appliance
+runtime:
+  ports:
+    - name: http
+      port: 80
+      protocol: tcp
+  healthcheck:
+    type: http
+    port: http
+    path: /
+    expected_status: 200
+persistence:
+  mount: /var/lib/mysql
+  size: 10G
+exposure:
+  pangolin:
+    port: http
+    name: Zabbix
+    subdomain: zabbix
