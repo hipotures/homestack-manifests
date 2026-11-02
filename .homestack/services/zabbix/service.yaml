@@ -14,8 +14,6 @@ runtime:
     path: /
     expected_status: 200
 persistence:
-  mount: /var/lib/mysql
-  size: 10G
 exposure:
   pangolin:
     port: http
