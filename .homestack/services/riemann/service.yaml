@@ -1,0 +1,23 @@
+schema: 3
+id: riemann
+name: Riemann
+image:
+  # Required by the schema and checked against its registry, but never pulled:
+  # Riemann runs on an existing virtual machine and is only published.
+  repository: docker.io/library/nginx
+runtime:
+  ports:
+    - name: http
+      port: 8080
+      protocol: tcp
+  healthcheck:
+    type: http
+    port: http
+    path: /
+    expected_status: 200
+persistence:
+exposure:
+  pangolin:
+    port: http
+    name: Riemann
+    subdomain: riemann
