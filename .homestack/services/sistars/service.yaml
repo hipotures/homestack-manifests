@@ -1,0 +1,23 @@
+schema: 3
+id: sistars
+name: SI-Stars
+image:
+  # Required by the schema and checked against its registry, but never pulled:
+  # SI-Stars runs on an existing virtual machine and is only published.
+  repository: docker.io/library/nginx
+runtime:
+  ports:
+    - name: http
+      port: 8080
+      protocol: tcp
+  healthcheck:
+    type: http
+    port: http
+    path: /health
+    expected_status: 200
+persistence:
+exposure:
+  pangolin:
+    port: http
+    name: SI-Stars
+    subdomain: sistars

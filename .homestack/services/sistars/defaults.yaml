@@ -1,0 +1,9 @@
+schema: 3
+service: sistars
+# Empty: no container is created; the existing service is only published.
+resources:
+deployment:
+  hostname: sistars
+  instances: 1
+  placement: single
+  state_model: stateless
